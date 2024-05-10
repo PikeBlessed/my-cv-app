@@ -23,13 +23,13 @@ def toggle_newsletter_stats():
         col_4.metric(label='CTOR', value='74.3%')
 
         ##chart 1
-        #st.area_chart(df_all_days_emails, x='day', y=['open', 'clics'])
+        st.area_chart(df_all_days_emails, x='day', y=['open', 'clics'])
 
         ##chart 2
-        #st.area_chart(df_all_days_suscribers, x='day', y=['suscriptions', 'cancelled_suscriptions (peaks removed by me)'])
+        st.area_chart(df_all_days_suscribers, x='day', y=['suscriptions', 'cancelled_suscriptions (peaks removed by me)'])
 
         ##chart 3
-        #st.line_chart(df_campaings_per_month, x='month', y=['campaign','emails sent','open','clics','cancelled suscriptions','spam reports'])
+        st.line_chart(df_campaings_per_month, x='month', y=['campaign','emails sent','open','clics','cancelled suscriptions','spam reports'])
 
 def toggle_button(namebutton, width=True):
     if namebutton not in st.session_state:
