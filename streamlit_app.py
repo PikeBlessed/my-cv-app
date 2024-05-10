@@ -11,8 +11,7 @@ with col_1:
     st.subheader('Marketing Specialist - Data Science Student')
 
 with col_2:
-    st.image('/home/pikeblessed/my-cv-app/files/Diseño sin título (1).png',
-             width=150)
+    st.image(open('/home/pikeblessed/my-cv-app/files/Diseño sin título (1).png', 'rb').read())
 
 
 
