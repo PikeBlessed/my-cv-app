@@ -74,7 +74,7 @@ def projects_button():
 projects_button()
 
 #Capabilities connected with SQL database
-conn = st.connection('postgresql', type='sql')
+conn = st.connection("postgresql", type="sql")
 
 
 capabilities = st.radio('###### Select what you want see', ['Hard skills', 'Technologies', 'Soft skills'], horizontal=True, index=None)
