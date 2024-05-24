@@ -1,7 +1,7 @@
 import streamlit as st
 import time
 import pandas as pd
-from experience import stream_data, toggle_newsletter_stats, toggle_button
+from experience import toggle_newsletter_stats, toggle_button, contact, show_technologies, message
 
 
 #Presentation
@@ -43,15 +43,17 @@ continue_experience = '''
         - Optimization: Webs created as fast as possible.
         - Simple but functional: I don't stand out for my web design. It's for this that I try to make them simple and convertible.
 '''
+@st.experimental_fragment
+def experience_button():
+    experience_butt = toggle_button('Deploy Experience')
 
+    ##Deploy experience
+    if experience_butt:
+        st.write(experience)
+        toggle_newsletter_stats()
+        st.write(continue_experience)
 
-experience_button = toggle_button('Deploy Experience')
-
-##Deploy experience
-if experience_button:
-    st.write(stream_data(experience))
-    toggle_newsletter_stats()
-    st.write(stream_data(continue_experience))
+experience_button()
 
 
 #Projects
@@ -59,62 +61,87 @@ projects = '''
     - Data science and MLOPs: I have made several projects about Data, from simple things such as Data Analysis, small ML models, ETL process to complete data science pipeline (ETL, EDA, modeling, MLOPs, etc).
         - ML models: My [best project](https://github.com/PikeBlessed/deploy-project-datascience) about MLOPs, that was to PHNAN. In this project I've applied a complete data science pipeline, API(FastAPI), differents ML models, Docker, etc.
         - Data Analysis: [Project](https://deepnote.com/workspace/proyecto-pandas-y-numpy-9f6dc92a-c802-474f-b7a1-01e51b6fc675/project/Octavios-Untitled-project-29dbf950-c5bc-4211-afb5-bd91a042da55/notebook/proyecto_data_science-d6f691c0cad446d29fbc07a32780a1a6) 
-        - IA Photographic App (in progress): An app about a chatbot integred with IA to analyze photos and bot can act like profesional.  
+        - IA Photographic App (in progress): An app about a chatbot integred with IA to analyze photos and bot can act like professional.  
 '''
 
-projects_button = toggle_button('Deploy Projects')
+@st.experimental_fragment
+def projects_button():
+    projects_butt = toggle_button('Deploy Projects')
 
-if projects_button:
-    st.write(stream_data(projects))
+    if projects_butt:
+        st.write(projects)
 
-form_action = f"https://formsubmit.co/depaulaoctavio04@gmail.com"
+projects_button()
 
-with st.expander('Contact with me'):
-    with st.container(border=True, height=470):
-        name = st.text_input("Name",)
-        email = st.text_input("Email")
-        subject = st.text_input("Subject")
-        message = st.text_area("Message")
+#Capabilities connected with SQL database
+conn = st.connection('postgresql', type='sql')
 
 
-        form_fields = {
-            "name": name,
-            "email": email,
-            "subject": subject,
-            "message": message
-        }
+capabilities = st.radio('###### Select what you want see', ['Hard skills', 'Technologies', 'Soft skills'], horizontal=True, index=None)
 
-        form_html = f"""
-        <form action="{form_action}" method="POST">
-            <input type="hidden" name="name" value="{name}" required>
-            <input type="hidden" name="email" value="{email}" required>
-            <input type="hidden" name="message" value="{message}" required>
-            <input type="hidden" name="_subject" value="{subject}" required>
-            <input type="hidden" name="_captcha" value="false">
-            <input type="hidden" name="_template" value="table">
-            <input type="submit" value="Send">
-        </form>
-        """
+##Hard Skills
+bring_hard_skills = conn.query('SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;')
 
-        code = '''
-            <style>
-                input[type="submit"] {
-                    background-color: #FFA07A;
-                    color: #000000;
-                    padding: 5px 10px;
-                    border-style: solid;
-                    border-width: 0px; 
-                    border-color: #87CEEB;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    width: 100%;
-                }
+if capabilities == 'Hard skills':
+    message(spinner_message='SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;',
+        toast_message='You select Hard Skills', icon='✅')
+    for index, row in bring_hard_skills.iterrows():
+        col1, col2, col3 = st.columns([0.65, 0.1, 0.6 ])
+        with col1:
+            name = row['hard_skill_name']
+            st.write(name, '➤') 
+        with col2:
+            st.image(row['icon'])
+        with col3:
+            st.write(row['technologie_name'])
 
-                .refill {
-                    border-bottom: 1px solid #ccc;
-                    margin-top: 10px;
-                }
-            </style>
-        '''
-        st.html(code)
-        st.markdown(form_html, unsafe_allow_html=True)
+
+##Technologies 
+all_techs = conn.query('SELECT * FROM technologies;')
+data_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'data';")
+development_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'development';")
+marketing_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'marketing';")
+
+if capabilities == 'Technologies':
+
+    filter= st.selectbox('***What technologies you want see?***',
+                            ('All', 'Data', 'Development', 'Marketing'),
+                            placeholder='Choose an option', index=None)
+    if filter == 'All':
+        message(spinner_message='SELECT * FROM technologies;', 
+                toast_message='You select all Technologies', icon='✅')
+        show_technologies(all_techs)
+    
+    if filter == 'Data':
+        message(spinner_message="SELECT icon, name FROM technologies WHERE area = 'data';", 
+                toast_message='Switch to Data', icon='✅')
+        show_technologies(data_techs)
+
+    if filter == 'Development':
+        message(spinner_message="SELECT icon, name FROM technologies WHERE area = 'development';", 
+                toast_message='Switch to Development', icon='✅')
+        show_technologies(development_techs)
+
+    if filter == 'Marketing':
+        message(spinner_message="SELECT icon, name FROM technologies WHERE area = 'marketing';", 
+                toast_message='Switch to Marketing', icon='✅')
+        show_technologies(marketing_techs)
+
+
+##Soft Skills
+bring_soft_skills = conn.query('SELECT * FROM soft_skills;')
+if capabilities == 'Soft skills':
+    message(spinner_message='SELECT * FROM soft_skills;',
+        toast_message='You select Soft Skills', icon='✅')
+    for index, row in bring_soft_skills.iterrows():
+        with st.container(border=True):
+            skills = row['name'] 
+            st.caption(f"<p style='color:#FFA07A'>{skills}</p>", unsafe_allow_html=True)
+
+#Contact
+@st.experimental_fragment
+def expander_contact():
+    with st.expander('**Contact with me**'):
+        with st.container(border=False, height=440):
+            contact()
+expander_contact()
