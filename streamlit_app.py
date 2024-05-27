@@ -3,6 +3,8 @@ import time
 import pandas as pd
 from experience import toggle_newsletter_stats, toggle_button, contact, show_technologies, message
 import psycopg2
+import sqlalchemy as sa
+from sqlalchemy.engine import URL
 
 #Presentation
 col_1, col_2 = st.columns([0.8, 0.2])
@@ -29,14 +31,14 @@ continue_experience = '''
         - Content creation: Multiple formarts to grow in social media.
             - Reels or Tiktoks: Dashes, scenes and descriptions.
             - Individual graphical posts and informative carousels: Everything.
-            - Stories: Dynamic and interactive stories to connectionect with the audience or sell them.
+            - Stories: Dynamic and interactive stories to connect with the audience or sell them.
             - Threads: Reflexions or phrases about photographic topics which will generate discussions.
         - Marketing campaigns: Several campaings to annonunce digital products based pay and organic content.
             - Organic content: In the product debut, the first focus is completely on organic content related with it.
             - Pay content: After first product moments I make focus on pay content through Facebook Ads.
         - Automations: Multiple automatizations with differents targets made with ManyChat, Zapier or any email software.
-            - Sell digital products: Organic content connectionected with a automatized flow that leads the custome to a landing page.
-            - Lead traffic to other platforms (Podcast, Newsletter, etc.): These connectionections can be through a link or APIs in any situations.
+            - Sell digital products: Organic content connected with a automatized flow that leads the custome to a landing page.
+            - Lead traffic to other platforms (Podcast, Newsletter, etc.): These connections can be through a link or APIs in any situations.
             - Post purchase service: With emails automatizations give product, support or any need to customer. 
             - Extra: Support, FAQ, ChatBot, etc.
     - Multiple Landing Pages with WordPress (all of them converted):
@@ -73,19 +75,25 @@ def projects_button():
 
 projects_button()
 
-#Capabilities connectionected with SQL database
-@st.cache_resource
-def connection():
-    conn = st.connection(name="postgresqll", type="sql")
-    return conn
+#Capabilities connected with SQL database
+@st.cache_data(ttl=600)
+def cargarDatos(queryDatos):
+    conString=st.secrets["conString"]    
+    engine = sa.create_engine(conString)
+        
+    dfDatos = pd.read_sql_query(queryDatos, engine)    
+    return dfDatos
 
-
+def ejecutarComandos(query):
+    conString=st.secrets["conString"]    
+    engine = sa.create_engine(conString)
+    engine.execute(query) 
 
 
 capabilities = st.radio('###### Select what you want see', ['Hard skills', 'Technologies', 'Soft skills'], horizontal=True, index=None)
 
 ##Hard Skills
-bring_hard_skills = connection.query('SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;')
+bring_hard_skills = cargarDatos('SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;')
 
 if capabilities == 'Hard skills':
     message(spinner_message='SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;',
@@ -102,10 +110,10 @@ if capabilities == 'Hard skills':
 
 
 ##Technologies 
-all_techs = connection.query('SELECT * FROM technologies;')
-data_techs = connection.query("SELECT icon, name FROM technologies WHERE area = 'data';")
-development_techs = connection.query("SELECT icon, name FROM technologies WHERE area = 'development';")
-marketing_techs = connection.query("SELECT icon, name FROM technologies WHERE area = 'marketing';")
+all_techs = cargarDatos('SELECT * FROM technologies;')
+data_techs = cargarDatos("SELECT icon, name FROM technologies WHERE area = 'data';")
+development_techs = cargarDatos("SELECT icon, name FROM technologies WHERE area = 'development';")
+marketing_techs = cargarDatos("SELECT icon, name FROM technologies WHERE area = 'marketing';")
 
 if capabilities == 'Technologies':
 
@@ -134,7 +142,7 @@ if capabilities == 'Technologies':
 
 
 ##Soft Skills
-bring_soft_skills = connection.query('SELECT * FROM soft_skills;')
+bring_soft_skills = cargarDatos('SELECT * FROM soft_skills;')
 if capabilities == 'Soft skills':
     message(spinner_message='SELECT * FROM soft_skills;',
         toast_message='You select Soft Skills', icon='✅')
