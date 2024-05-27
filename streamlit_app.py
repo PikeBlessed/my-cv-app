@@ -29,14 +29,14 @@ continue_experience = '''
         - Content creation: Multiple formarts to grow in social media.
             - Reels or Tiktoks: Dashes, scenes and descriptions.
             - Individual graphical posts and informative carousels: Everything.
-            - Stories: Dynamic and interactive stories to connect with the audience or sell them.
+            - Stories: Dynamic and interactive stories to connectionect with the audience or sell them.
             - Threads: Reflexions or phrases about photographic topics which will generate discussions.
         - Marketing campaigns: Several campaings to annonunce digital products based pay and organic content.
             - Organic content: In the product debut, the first focus is completely on organic content related with it.
             - Pay content: After first product moments I make focus on pay content through Facebook Ads.
         - Automations: Multiple automatizations with differents targets made with ManyChat, Zapier or any email software.
-            - Sell digital products: Organic content connected with a automatized flow that leads the custome to a landing page.
-            - Lead traffic to other platforms (Podcast, Newsletter, etc.): These connections can be through a link or APIs in any situations.
+            - Sell digital products: Organic content connectionected with a automatized flow that leads the custome to a landing page.
+            - Lead traffic to other platforms (Podcast, Newsletter, etc.): These connectionections can be through a link or APIs in any situations.
             - Post purchase service: With emails automatizations give product, support or any need to customer. 
             - Extra: Support, FAQ, ChatBot, etc.
     - Multiple Landing Pages with WordPress (all of them converted):
@@ -73,18 +73,19 @@ def projects_button():
 
 projects_button()
 
-#Capabilities connected with SQL database
+#Capabilities connectionected with SQL database
 @st.cache_resource
-def init_connection():
-    return psycopg2.connect(**st.secrets["postgresql"])
+def connection():
+    conn = st.connectionection(name="postgresqll", type="sql")
+    return conn
 
-conn = init_connection()
+
 
 
 capabilities = st.radio('###### Select what you want see', ['Hard skills', 'Technologies', 'Soft skills'], horizontal=True, index=None)
 
 ##Hard Skills
-bring_hard_skills = conn.query('SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;')
+bring_hard_skills = connection.query('SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;')
 
 if capabilities == 'Hard skills':
     message(spinner_message='SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;',
@@ -101,10 +102,10 @@ if capabilities == 'Hard skills':
 
 
 ##Technologies 
-all_techs = conn.query('SELECT * FROM technologies;')
-data_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'data';")
-development_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'development';")
-marketing_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'marketing';")
+all_techs = connection.query('SELECT * FROM technologies;')
+data_techs = connection.query("SELECT icon, name FROM technologies WHERE area = 'data';")
+development_techs = connection.query("SELECT icon, name FROM technologies WHERE area = 'development';")
+marketing_techs = connection.query("SELECT icon, name FROM technologies WHERE area = 'marketing';")
 
 if capabilities == 'Technologies':
 
@@ -133,7 +134,7 @@ if capabilities == 'Technologies':
 
 
 ##Soft Skills
-bring_soft_skills = conn.query('SELECT * FROM soft_skills;')
+bring_soft_skills = connection.query('SELECT * FROM soft_skills;')
 if capabilities == 'Soft skills':
     message(spinner_message='SELECT * FROM soft_skills;',
         toast_message='You select Soft Skills', icon='✅')
