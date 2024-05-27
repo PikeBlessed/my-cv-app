@@ -76,7 +76,7 @@ projects_button()
 #Capabilities connectionected with SQL database
 @st.cache_resource
 def connection():
-    conn = st.connectionection(name="postgresqll", type="sql")
+    conn = st.connection(name="postgresqll", type="sql")
     return conn
 
 
