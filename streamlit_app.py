@@ -2,7 +2,7 @@ import streamlit as st
 import time
 import pandas as pd
 from experience import toggle_newsletter_stats, toggle_button, contact, show_technologies, message
-
+import psycopg2
 
 #Presentation
 col_1, col_2 = st.columns([0.8, 0.2])
@@ -74,7 +74,11 @@ def projects_button():
 projects_button()
 
 #Capabilities connected with SQL database
-conn = st.connection(name="postgresqll", type="sql")
+@st.cache_resource
+def init_connection():
+    return psycopg2.connect(**st.secrets["postgresql"])
+
+conn = init_connection()
 
 
 capabilities = st.radio('###### Select what you want see', ['Hard skills', 'Technologies', 'Soft skills'], horizontal=True, index=None)
