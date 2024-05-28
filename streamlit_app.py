@@ -2,9 +2,7 @@ import streamlit as st
 import time
 import pandas as pd
 from experience import toggle_newsletter_stats, toggle_button, contact, show_technologies, message
-import psycopg2
-import sqlalchemy as sa
-from sqlalchemy.engine import URL
+from st_supabase_connection import SupabaseConnection, execute_query
 
 #Presentation
 col_1, col_2 = st.columns([0.8, 0.2])
@@ -38,7 +36,7 @@ continue_experience = '''
             - Pay content: After first product moments I make focus on pay content through Facebook Ads.
         - Automations: Multiple automatizations with differents targets made with ManyChat, Zapier or any email software.
             - Sell digital products: Organic content connected with a automatized flow that leads the custome to a landing page.
-            - Lead traffic to other platforms (Podcast, Newsletter, etc.): These connections can be through a link or APIs in any situations.
+            - Lead traffic to other platforms (Podcast, Newsletter, etc.): These conns can be through a link or APIs in any situations.
             - Post purchase service: With emails automatizations give product, support or any need to customer. 
             - Extra: Support, FAQ, ChatBot, etc.
     - Multiple Landing Pages with WordPress (all of them converted):
@@ -76,24 +74,15 @@ def projects_button():
 projects_button()
 
 #Capabilities connected with SQL database
-@st.cache_data(ttl=600)
-def cargarDatos(queryDatos):
-    conString=st.secrets["conString"]    
-    engine = sa.create_engine(conString)
-        
-    dfDatos = pd.read_sql_query(queryDatos, engine)    
-    return dfDatos
-
-def ejecutarComandos(query):
-    conString=st.secrets["conString"]    
-    engine = sa.create_engine(conString)
-    engine.execute(query) 
+conn = st.connection("supabase",type=SupabaseConnection, ttl=None)
 
 
 capabilities = st.radio('###### Select what you want see', ['Hard skills', 'Technologies', 'Soft skills'], horizontal=True, index=None)
 
 ##Hard Skills
-bring_hard_skills = cargarDatos('SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;')
+'''
+bring = conn.query()
+bring_hard_skills = conn.query('SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;')
 
 if capabilities == 'Hard skills':
     message(spinner_message='SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;',
@@ -107,13 +96,13 @@ if capabilities == 'Hard skills':
             st.image(row['icon'])
         with col3:
             st.write(row['technologie_name'])
-
+'''
 
 ##Technologies 
-all_techs = cargarDatos('SELECT * FROM technologies;')
-data_techs = cargarDatos("SELECT icon, name FROM technologies WHERE area = 'data';")
-development_techs = cargarDatos("SELECT icon, name FROM technologies WHERE area = 'development';")
-marketing_techs = cargarDatos("SELECT icon, name FROM technologies WHERE area = 'marketing';")
+all_techs = execute_query(conn.table('technologies').select('*'))
+#data_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'data';")
+#development_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'development';")
+#marketing_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'marketing';")
 
 if capabilities == 'Technologies':
 
@@ -124,7 +113,7 @@ if capabilities == 'Technologies':
         message(spinner_message='SELECT * FROM technologies;', 
                 toast_message='You select all Technologies', icon='✅')
         show_technologies(all_techs)
-    
+    '''
     if filter == 'Data':
         message(spinner_message="SELECT icon, name FROM technologies WHERE area = 'data';", 
                 toast_message='Switch to Data', icon='✅')
@@ -139,10 +128,11 @@ if capabilities == 'Technologies':
         message(spinner_message="SELECT icon, name FROM technologies WHERE area = 'marketing';", 
                 toast_message='Switch to Marketing', icon='✅')
         show_technologies(marketing_techs)
-
+    '''
 
 ##Soft Skills
-bring_soft_skills = cargarDatos('SELECT * FROM soft_skills;')
+'''
+bring_soft_skills = conn.query('SELECT * FROM soft_skills;')
 if capabilities == 'Soft skills':
     message(spinner_message='SELECT * FROM soft_skills;',
         toast_message='You select Soft Skills', icon='✅')
@@ -150,7 +140,7 @@ if capabilities == 'Soft skills':
         with st.container(border=True):
             skills = row['name'] 
             st.caption(f"<p style='color:#FFA07A'>{skills}</p>", unsafe_allow_html=True)
-
+'''
 #Contact
 @st.experimental_fragment
 def expander_contact():

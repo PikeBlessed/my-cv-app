@@ -104,7 +104,7 @@ def contact():
 
 
 def show_technologies(query):
-    for index, row in query.iterrows():
+    for row in query.data:
         col1, col2 = st.columns([0.05, 0.95])
         with col1:
             st.image(row['icon'])
