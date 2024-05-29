@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import time
+from st_supabase_connection import SupabaseConnection, execute_query
 
 #Write experience with a animation like ChatGPT
 
@@ -117,3 +118,12 @@ def message(spinner_message, toast_message, icon):
         message = st.toast(toast_message, icon=icon)
         time.sleep(1)
         message.empty()
+
+#Capabilities connected with SQL database
+@st.cache_resource(ttl=86400)
+def init_connection():
+    name = "supabase"
+    connection_type = SupabaseConnection
+    ttl = 86400
+    return st.connection(name=name, type=connection_type, ttl=ttl)
+

@@ -1,8 +1,9 @@
 import streamlit as st
 import time
 import pandas as pd
-from experience import toggle_newsletter_stats, toggle_button, contact, show_technologies, message
-from st_supabase_connection import SupabaseConnection, execute_query
+from experience import toggle_newsletter_stats, toggle_button, contact, show_technologies, message, init_connection
+
+
 
 #Presentation
 col_1, col_2 = st.columns([0.8, 0.2])
@@ -73,36 +74,42 @@ def projects_button():
 
 projects_button()
 
-#Capabilities connected with SQL database
-conn = st.connection("supabase",type=SupabaseConnection, ttl=None)
+conn = init_connection()
 
+
+def query_xd(query_table, query, where=None, equal=None):
+    if where and equal:
+        return conn.table(query_table).select(query).eq(where, equal).execute()
+    else:
+        return conn.table(query_table).select(query).execute()
+
+st.cache_data(func=query_xd, ttl=86400)
 
 capabilities = st.radio('###### Select what you want see', ['Hard skills', 'Technologies', 'Soft skills'], horizontal=True, index=None)
 
 ##Hard Skills
-'''
-bring = conn.query()
-bring_hard_skills = conn.query('SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;')
+bring_hard_skills = query_xd('hard_skills', "name, technologies (name, icon)")
+
 
 if capabilities == 'Hard skills':
     message(spinner_message='SELECT hs.name AS hard_skill_name, t.icon, t.name AS technologie_name FROM public.hard_skills hs JOIN public.technologies t ON hs.technologie_id = t.id;',
         toast_message='You select Hard Skills', icon='✅')
-    for index, row in bring_hard_skills.iterrows():
-        col1, col2, col3 = st.columns([0.65, 0.1, 0.6 ])
+    for row in bring_hard_skills.data:
+        col1, col2, col3 = st.columns([0.83, 0.1, 0.5 ])
         with col1:
-            name = row['hard_skill_name']
+            name = row['name']
             st.write(name, '➤') 
         with col2:
-            st.image(row['icon'])
+            st.image(row["technologies"]["icon"])
         with col3:
-            st.write(row['technologie_name'])
-'''
+            st.write(row['technologies']['name'])
+
 
 ##Technologies 
-all_techs = execute_query(conn.table('technologies').select('*'))
-#data_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'data';")
-#development_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'development';")
-#marketing_techs = conn.query("SELECT icon, name FROM technologies WHERE area = 'marketing';")
+all_techs = query_xd('technologies', '*')
+data_techs = query_xd('technologies', "icon, name", 'area', 'data')
+development_techs = query_xd('technologies', "icon, name", 'area', 'development')
+marketing_techs = query_xd('technologies', "icon, name", 'area', 'marketing')
 
 if capabilities == 'Technologies':
 
@@ -113,7 +120,7 @@ if capabilities == 'Technologies':
         message(spinner_message='SELECT * FROM technologies;', 
                 toast_message='You select all Technologies', icon='✅')
         show_technologies(all_techs)
-    '''
+    
     if filter == 'Data':
         message(spinner_message="SELECT icon, name FROM technologies WHERE area = 'data';", 
                 toast_message='Switch to Data', icon='✅')
@@ -128,19 +135,20 @@ if capabilities == 'Technologies':
         message(spinner_message="SELECT icon, name FROM technologies WHERE area = 'marketing';", 
                 toast_message='Switch to Marketing', icon='✅')
         show_technologies(marketing_techs)
-    '''
+
 
 ##Soft Skills
-'''
-bring_soft_skills = conn.query('SELECT * FROM soft_skills;')
+bring_soft_skills = query_xd('soft_skills', "*")
+
 if capabilities == 'Soft skills':
     message(spinner_message='SELECT * FROM soft_skills;',
         toast_message='You select Soft Skills', icon='✅')
-    for index, row in bring_soft_skills.iterrows():
+    for row in bring_soft_skills.data:
         with st.container(border=True):
             skills = row['name'] 
             st.caption(f"<p style='color:#FFA07A'>{skills}</p>", unsafe_allow_html=True)
-'''
+
+
 #Contact
 @st.experimental_fragment
 def expander_contact():
