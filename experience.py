@@ -15,9 +15,9 @@ def toggle_newsletter_stats():
     toggle_newsletter = st.toggle('**See newsletter stats**')
     if toggle_newsletter: 
         #newsletter datasets 
-        df_all_days_emails = pd.read_csv('/home/pikeblessed/my-cv-app/files/stats all days emails.csv')
-        df_all_days_suscribers = pd.read_csv('/home/pikeblessed/my-cv-app/files/stats all suscribers.csv')
-        df_campaings_per_month = pd.read_csv('/home/pikeblessed/my-cv-app/files/stats campaigns.csv')
+        df_all_days_emails = pd.read_csv('files/stats_all_days_emails.csv')
+        df_all_days_suscribers = pd.read_csv('files/stats_all_suscribers.csv')
+        df_campaings_per_month = pd.read_csv('files/stats_campaigns.csv')
 
         ##general stats
         col_1, col_2, col_3, col_4 = st.columns(4)
