@@ -72,7 +72,7 @@ def contact():
         <input type="hidden" name="_subject" value="{subject}" required>
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_template" value="table">
-        <input type="hidden" name="_next" value="http://localhost:8502/">
+        <input type="hidden" name="_next" value="https://octaviodepaula.streamlit.app/">
         <input type="submit" value="Send">
     </form>
     """
